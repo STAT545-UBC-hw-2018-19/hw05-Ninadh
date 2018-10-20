@@ -1,0 +1,120 @@
+---
+title: "hw05_ninadh"
+author: "Ninadh"
+date: "October 19, 2018"
+output: html_document
+---
+
+
+```{r}
+library(gapminder)
+library(tidyverse)
+library(scales)
+library(ggplot2)
+library(plotly)
+library(knitr)
+```
+
+Part 1: Factor management
+
+- Reorder the level of country
+- Drop Oceania
+
+```{r}
+summary(gapminder)
+```
+
+A better structure of the gapminder dataset
+
+```{r}
+gapminder %>%
+  group_by(continent) %>%
+  knitr::kable() %>%
+  head()
+```
+
+```{r}
+gapminder %>%
+summarize(
+n_row = nrow(gapminder),
+cont_levels = nlevels(gapminder$country),
+coun_levels = nlevels(gapminder$continent)) %>%
+knitr::kable(col.names = c("Rows", "Countries", "Continents"))
+```
+
+- Reordering the level of country and gdpPercap
+
+```{r}
+gapminder %>%
+  filter(continent == "Asia") %>%
+  group_by(country) %>%
+  select(country, gdpPercap) %>%
+  knitr::kable(col.names = c("Country", "GDP Percap")) %>%
+  head(10)
+```
+
+Using the "arrange" function
+
+```{r}
+gapminder %>%
+  filter(continent == "Asia") %>%
+  select(country, gdpPercap, year) %>%
+  mutate(max_GDP = max(gdpPercap)) %>%
+  arrange(max_GDP) %>%
+  knitr::kable() %>%
+  head(20)
+```
+
+This shows the max gdpPercap by an Asian country in a certain year.
+
+visualisation using ggplot
+
+```{r}
+arranged_gap <- gapminder %>%
+  filter(continent == "Asia") %>%
+  select(country, gdpPercap, year) %>%
+  mutate(max_GDP = max(gdpPercap)) %>%
+  arrange(max_GDP)
+```
+
+```{r}
+arranged_gap %>%
+  ggplot(aes(max_GDP, year, colour = country)) +
+  geom_point()
+```
+
+this is weird. according to this graph, Yemen had the max gdp over the years.
+
+```{r}
+arranged_gap %>%
+  filter(country == "Bangladesh") %>%
+  ggplot(aes(max_GDP, year)) +
+  geom_point()
+```
+
+ok. dont know whats going on with GDP. Let me try with lifeExp.
+
+```{r}
+gapminder %>%
+  filter(continent == "Asia") %>%
+  group_by(country) %>%
+  select(country, lifeExp) %>%
+  knitr::kable(col.names = c("Country", "Life Expectancy")) %>%
+  head(10)
+```
+
+```{r}
+arranged_gap <- gapminder %>%
+  filter(continent == "Asia") %>%
+  select(country, lifeExp, year) %>%
+  mutate(max_LEx = max(lifeExp)) %>%
+  arrange(max_LEx)
+```
+
+
+```{r}
+arranged_gap %>%
+  ggplot(aes(lifeExp, year, colour = country)) +
+  geom_point()
+```
+

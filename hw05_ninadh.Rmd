@@ -2,7 +2,7 @@
 title: "hw05_ninadh"
 author: "Ninadh"
 date: "October 19, 2018"
-output: html_document
+output: github_document
 ---
 
 
@@ -104,6 +104,17 @@ gapminder %>%
 ```
 
 ```{r}
+nlevels(gapminder$lifeExp)
+nlevels(gapminder$gdpPercap)
+nlevels(gapminder$pop) 
+nlevels(gapminder$country)  
+nlevels(gapminder$continent)
+nlevels(gapminder$year)
+```
+
+
+
+```{r}
 arranged_gap <- gapminder %>%
   filter(continent == "Asia") %>%
   select(country, lifeExp, year) %>%
@@ -111,10 +122,165 @@ arranged_gap <- gapminder %>%
   arrange(max_LEx)
 ```
 
+```{r}
+gapminder %>%
+  filter(year > 1987) %>%
+  filter(continent == "Asia") %>%
+  select(country, year, lifeExp)
+```
+
 
 ```{r}
-arranged_gap %>%
+arranged_lifeEx <- gapminder %>%
+  filter(year > 1987) %>%
+  filter(continent == "Asia") %>%
+  select(country, year, lifeExp)
+```
+
+
+```{r}
+arranged_lifeEx %>%
   ggplot(aes(lifeExp, year, colour = country)) +
   geom_point()
 ```
+
+Dropping Oceania now.
+
+```{r}
+gapminder %>%
+  filter(continent != "Oceania") %>%
+  droplevels()
+```
+
+```{r}
+levels(gapminder$continent)
+```
+
+
+
+Checking for the continents after dropping Oceania.
+
+```{r}
+noOc_gap <- gapminder %>%
+  filter(continent != "Oceania") %>%
+  droplevels()
+```
+
+```{r}
+levels(noOc_gap$continent)
+```
+
+Plotting for lifeExp after dropping Oceania
+
+```{r}
+noOc_gap %>%
+  ggplot(aes(continent, lifeExp, colour = continent)) +
+  geom_jitter() +
+  labs (x = "Continent",
+        y = "Life Expectancy",
+        title = "Life expectancy after dropping Oceania") +
+  theme_bw()
+```
+
+Part 2: File input and output (File I/O)
+
+- Have been using gapminder all along and will stick to it.
+- Will use the filtered factor levels created in Part 1.
+
+```{r}
+arranged_lifeEx <- gapminder %>%
+  filter(year > 1987) %>%
+  filter(continent == "Asia") %>%
+  select(country, year, lifeExp)
+```
+
+
+Trying to save the file as csv. as instructed in the assigment.
+
+```{r}
+write.csv(arranged_lifeEx, file = "STAT545_hw05")
+```
+
+
+Trying to import using read.csv as instructed
+
+```{r}
+read_csv("STAT545_hw05")
+```
+
+
+Part 3: Visualisation design
+
+- going to use plotly for this
+
+```{r}
+library(plotly)
+```
+
+
+```{r}
+noOc_gap %>%
+  ggplot(aes(lifeExp, year)) +
+  geom_point(aes(colour = pop)) +
+  facet_wrap(~ continent) +
+     theme_bw() +
+  labs(x= "Life Expectancy", y = "Year") +
+    theme(axis.text = element_text(size = 8),
+          axis.title = element_text(size = 20),
+          strip.background = element_rect(fill = "purple"))
+```
+
+this graph shows that Asia had very high population (light blue) at some points, and its position with respect to Year and Life expectance.
+
+```{r}
+plot_ly(noOc_gap, 
+        x = ~lifeExp, 
+        y = ~year, 
+        z = ~pop,
+        type = "scatter",
+        mode = "markers",
+        opacity = 0.5) 
+```
+
+I would like to try the 3D version.
+
+```{r}
+plot_ly(noOc_gap, 
+        x = ~lifeExp, 
+        y = ~year, 
+        z = ~pop,
+        type = "scatter3d",
+        mode = "markers",
+        opacity = 0.5) 
+
+# "3D" did not work. try "3d". case sensitive. work eith extending at the edges to enlarge or shrink with trackpad.
+```
+
+
+Part 4: Writing figures to file
+
+```{r}
+hw05_fig <- noOc_gap %>%
+  ggplot(aes(lifeExp, year)) +
+  geom_point(aes(colour = pop)) +
+  facet_wrap(~ continent) +
+     theme_bw() +
+  labs(x= "Life Expectancy", y = "Year") +
+    theme(axis.text = element_text(size = 8),
+          axis.title = element_text(size = 20),
+          strip.background = element_rect(fill = "purple"))
+```
+
+
+```{r}
+ggsave("hw05_plot.png", hw05_fig)
+```
+
+changing the scaling of the figure
+
+```{r}
+ggsave("hw05_plot2.png", hw05_fig, width = 50, height = 40, units = "cm", dpi = 600)
+```
+
+hw05_plot is better looking than hw05_plot2
 
